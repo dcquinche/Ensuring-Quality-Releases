@@ -99,6 +99,7 @@ stages:
         command: 'apply'
         workingDirectory: '$(projectRoot)/terraform/environments/test'
         environmentServiceNameAzureRM: '$(azureServiceConnectionId)'
+      enabled: false
 
     #--------------------------------------------#
 
