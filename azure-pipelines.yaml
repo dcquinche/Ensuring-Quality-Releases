@@ -18,9 +18,9 @@ variables:
   # Project root folder. Point to the folder containing manage.py file.
   projectRoot: $(System.DefaultWorkingDirectory)
   # Environment name
-  environmentName: 'test-vm'
+  environmentName: 'test'
   # terraform storage number
-  tfstatenumber: 'tfstate800418379'
+  tfstatenumber: 'tfstate1253114728'
   # terraform resource group
   tfrg: 'Azuredevops'
   # webapp name
@@ -43,6 +43,7 @@ stages:
         terraformVersion: '1.2.9'
       enabled: false
 
+
     # Run Terraform Init on the pipeline agent
     # ToDo: Replace the resource group name, storage account name, and container name below
     - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV3@3
@@ -57,6 +58,7 @@ stages:
         backendAzureRmContainerName: 'tfstate'
         backendAzureRmKey: 'test.terraform.tfstate'
       enabled: false
+
 
     - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV3@3
       displayName: Terraform validate
@@ -120,7 +122,7 @@ stages:
     - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId)-uitests.zip   # Same as the archiveFile artifact above.
       displayName: 'Upload Package'
       artifact: drop-uitests
-      enabled: false
+
 
     # FakeRestAPI - Archive
     # ToDo: Complete the ArchiveFiles@2 task and publish step
@@ -176,6 +178,7 @@ stages:
           sudo n stable
           sudo npm install -g newman
         workingDirectory: $(projectRoot)
+
     # Postman Data Validation Test Suite
     - task: CmdLine@2
       displayName: Run Data Validation Tests
@@ -183,6 +186,7 @@ stages:
       inputs:
         script: 'newman run TestSuite.Data-Validation.json -e Test.environment.json --reporters cli,junit --reporter-junit-export TEST-DataValidation.xml'
         workingDirectory: '$(projectRoot)/automatedtesting/postman'
+
     # Postman Regression Test Suite
     - task: CmdLine@2
       displayName: Run Regression Tests
@@ -190,6 +194,7 @@ stages:
       inputs:
         script: 'newman run TestSuite.Regression.json -e Test.environment.json --reporters cli,junit --reporter-junit-export TEST-Regression.xml'
         workingDirectory: '$(projectRoot)/automatedtesting/postman'
+
     # Postman - Publish Results
     - task: PublishTestResults@2
       inputs:
@@ -198,6 +203,7 @@ stages:
         searchFolder: 'automatedtesting/postman'
         mergeTestResults: true
         testRunTitle: 'Publish test results'
+
 
     #--------------------------------------------#
     # Jmeter - Performance Test Suite
@@ -232,6 +238,7 @@ stages:
         archiveType: 'zip'
         archiveFile: '$(System.DefaultWorkingDirectory)/log/jmeter/stress-test-html-report-$(Build.BuildId).zip'
         verbose: true
+
     - task: ArchiveFiles@2
       displayName: Save JMeter Endurance Test Report to Artifact
       inputs:
@@ -240,11 +247,13 @@ stages:
         archiveType: 'zip'
         archiveFile: '$(System.DefaultWorkingDirectory)/log/jmeter/endurance-test-html-report-$(Build.BuildId).zip'
         verbose: true
+
     - task: PublishPipelineArtifact@1
       displayName: Publish JMeter Logs
       inputs:
         targetPath: '$(System.DefaultWorkingDirectory)/log/jmeter'
         artifactName: 'drop-jmeter-logs'
+
 
   #--------------------------------------------#
   # Selenium | Functional UI Tests
@@ -296,9 +305,11 @@ stages:
                 mkdir -p log/selenium
 
                 sudo cp /var/log/selenium/selenium-test.log log/selenium/selenium-test.log
+
           - task: PublishPipelineArtifact@1
             displayName: Publish Selenium Logs
             inputs:
               targetPath: '$(System.DefaultWorkingDirectory)/log/selenium/selenium-test.log'
               artifactName: 'drop-selenium-logs'
+
 
