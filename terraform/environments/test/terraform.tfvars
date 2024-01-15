@@ -4,10 +4,8 @@ tenant_id = "f958e84a-92b8-439f-a62d-4f45996b6d07"
 client_id = "6845eb09-b63b-4860-b866-9205d56810cb"
 client_secret = "OdA8Q~FAozrLZxmgM2AaVdEW9v76-7zEJghfdbnf"
 
-
 # Resource Group/Location
-location = "West Europe"
-resource_group_name = "Azuredevops"
+location = "westeurope"
 resource_group = "Azuredevops"
 application_type = "my-application"
 

@@ -14,7 +14,7 @@ pool:
 variables:
   python.version: '3.8.10'
   # ToDo: Replace the service connection name as used in the DevOps project settings
-  azureServiceConnectionId: 'MyServiceConnection'
+  azureServiceConnectionId: 'myServiceConnection'
   # Project root folder. Point to the folder containing manage.py file.
   projectRoot: $(System.DefaultWorkingDirectory)
   # Environment name
@@ -25,8 +25,6 @@ variables:
   tfrg: 'Azuredevops'
   # webapp name
   application_type: 'my-application'
-  # Add your Azure Subscription ID here
-  subscriptionId: '80ae9245-22ea-4f16-a42f-d5cebd7aac99'
 
 stages:
 #--------------------------------------------#
@@ -82,15 +80,7 @@ stages:
     #  displayName:
     #  inputs:
     #   secureFile:
-    # Conditional Terraform Import
-    - task: Bash@3
-      displayName: 'Conditional Terraform Import'
-      inputs:
-        workingDirectory: '$(projectRoot)/terraform/environments/test'
-        targetType: 'inline'
-        script: |
-          # Check if the resource group already exists and is not in Terraform state
-          terraform import module.resource_group.azurerm_resource_group.Azuredevops /subscriptions/$(subscriptionId)/resourceGroups/$(tfrg)
+
     # Run Terraform Apply
     - task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV3@3
       displayName: Terraform apply
@@ -100,7 +90,6 @@ stages:
         workingDirectory: '$(projectRoot)/terraform/environments/test'
         environmentServiceNameAzureRM: '$(azureServiceConnectionId)'
       enabled: false
-
     #--------------------------------------------#
 
     # JMeter (Performance) Test Suite - Archive
@@ -112,6 +101,7 @@ stages:
         includeRootFolder: false
         archiveType: 'zip'
         archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId)-perftests.zip'
+
     # JMeter Test Suite - Publish
     - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId)-perftests.zip
       displayName: 'Upload Package'
@@ -130,6 +120,7 @@ stages:
     - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId)-uitests.zip   # Same as the archiveFile artifact above.
       displayName: 'Upload Package'
       artifact: drop-uitests
+      enabled: false
 
     # FakeRestAPI - Archive
     # ToDo: Complete the ArchiveFiles@2 task and publish step
@@ -165,6 +156,7 @@ stages:
               appName: 'my-application-AppService'
               appType: 'webAppLinux'
               package: $(Pipeline.Workspace)/drop-fakerestapi/$(Build.BuildId)-fakerestapi.zip
+
 # --------------------------------------------#
 # TEST STAGE
 # --------------------------------------------#
@@ -273,15 +265,15 @@ stages:
               script: |
                 #!/bin/bash
 
-                "sudo apt-get update -y",
-                "sudo apt-get upgrade -y",
-                "sudo apt-get install -y nodejs npm python3-pip unzip",
-                "if ! command -v npm &> /dev/null; then sudo apt-get install -y npm; fi",
-                "sudo npm install -g n",
-                "sudo n stable",
-                "sudo snap install chromium",
-                "sudo npm install -g chromedriver",
-                "sudo pip3 install selenium",
+                sudo apt-get update -y
+                sudo apt-get upgrade -y
+                sudo apt-get install python3-pip -y
+                sudo apt-get install unzip -y
+                sudo apt-get install -y chromium-browser
+                sudo apt-get install -y chromium-chromedriver
+                sudo apt-get install software-properties-common
+                sudo apt-get install -y python-selenium
+                pip3 install selenium
           - task: Bash@3
             displayName: Selenium Tests
             inputs:

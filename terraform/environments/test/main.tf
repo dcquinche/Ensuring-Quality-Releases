@@ -3,7 +3,11 @@ provider "azurerm" {
   subscription_id = "${var.subscription_id}"
   client_id       = "${var.client_id}"
   client_secret   = "${var.client_secret}"
-  features {}
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
 }
 
 terraform {
@@ -19,6 +23,11 @@ module "resource_group" {
   source               = "../../modules/resource_group"
   resource_group       = "${var.resource_group}"
   location             = "${var.location}"
+}
+
+resource "azurerm_resource_group" "Azuredevops" {
+  name     = "Azuredevops"
+  location = "${var.location}"
 }
 
 module "network" {
